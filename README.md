@@ -9,3 +9,4 @@ An implementation of the Hough Transform in Python for the semester project of t
 ![](./input/Kheops-Pyramid.jpeg)  
 used under CC license: `By Nina - Own work, CC BY 2.5, https://commons.wikimedia.org/w/index.php?curid=282496`
 2. Canny Edge Detection - https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html
+3. Hough Transform - https://docs.opencv.org/4.x/d9/db0/tutorial_hough_lines.html

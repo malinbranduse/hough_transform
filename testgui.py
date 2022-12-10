@@ -168,7 +168,7 @@ class App:
         openedfile = filedialog.askopenfilename(
             initialdir="/",
             title="Select an Image",
-            filetypes=(("Image files", "*.png*"), ("Image files", "*.jpg*")),
+            filetypes=(("Image files", "*.png"), ("Image files", "*.jpg")),
         )
 
         # Change label contents

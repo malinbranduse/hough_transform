@@ -10,186 +10,193 @@ from tkinter import filedialog
 
 # Import ttk explicitly, because of faulty behaviour
 from tkinter import ttk
+import sys
+from PIL import Image, ImageTk
+
+# Import the Resampling class from PIL.Image
+from PIL.Image import Resampling
 
 
-class App:
-    def __init__(self, root):
-        # Setting title
-        root.title("Line detection by Hough Transform")
-        # Setting window size and characteristics
-        width = 800
-        height = 600
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
-        alignstr = "%dx%d+%d+%d" % (
-            width,
-            height,
-            (screenwidth - width) / 2,
-            (screenheight - height) / 2,
-        )
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
+# Create the root window
+root = tk.Tk()
+# Setting title
+root.title("Line detection by Hough Transform")
+# Setting window size and characteristics
+width = 800
+height = 600
+screenwidth = root.winfo_screenwidth()
+screenheight = root.winfo_screenheight()
+alignstr = "%dx%d+%d+%d" % (
+    width,
+    height,
+    (screenwidth - width) / 2,
+    (screenheight - height) / 2,
+)
+root.geometry(alignstr)
+root.resizable(width=False, height=False)
 
-        # Buttons
+# Events for buttons
+# to dos
+def doTransform():
+    # to do
+    print("Hough transform")
 
-        # Do Line detection button
-        performTransformButton = tk.Button(root)
-        performTransformButton["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family="Times", size=10)
-        performTransformButton["font"] = ft
-        performTransformButton["fg"] = "#000000"
-        performTransformButton["justify"] = "center"
-        performTransformButton["text"] = "Action!"
-        performTransformButton.place(x=20, y=200, width=70, height=25)
-        performTransformButton["command"] = self.doTransform
 
-        # Browse for image button
-        browseImageButton = tk.Button(root)
-        browseImageButton["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family="Times", size=10)
-        browseImageButton["font"] = ft
-        browseImageButton["fg"] = "#000000"
-        browseImageButton["justify"] = "center"
-        browseImageButton["text"] = "Browse"
-        browseImageButton.place(x=20, y=100, width=120, height=25)
-        browseImageButton["command"] = self.browseFiles
+# Function for opening the file explorer window
+def browseFiles():
+    global openedfile
+    openedfile = filedialog.askopenfilename(
+        initialdir="/",
+        title="Select an Image",
+        filetypes=(("Image files", "*.png"), ("Image files", "*.jpg")),
+    )
+    # Open the image file using PIL
+    inputImage = Image.open(openedfile)
+    # Resize the image to fit the dimensions of the label
+    inputImage = inputImage.resize(
+        (initImage.winfo_width(), initImage.winfo_height()), Resampling.LANCZOS
+    )
+    # Convert the image to a Tkinter-compatible photo image
+    inputPhoto = ImageTk.PhotoImage(inputImage)
+    # Update the label's image attribute with the new photo image
+    initImage.config(image=inputPhoto)
+    initImage.image = inputPhoto
+    # Adjust the layout of the label to fit the resized image
+    # initImage.pack(side="left", fill="both", expand=True)
 
-        # Perform OpenCV-based Line detection
-        compareOpenCVButton = tk.Button(root)
-        compareOpenCVButton["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family="Times", size=10)
-        compareOpenCVButton["font"] = ft
-        compareOpenCVButton["fg"] = "#000000"
-        compareOpenCVButton["justify"] = "center"
-        compareOpenCVButton["text"] = "OpenCV"
-        compareOpenCVButton.place(x=20, y=360, width=70, height=25)
-        compareOpenCVButton["command"] = self.tranformOpenCV
 
-        # Show histograms button
-        histogramButton = tk.Button(root)
-        histogramButton["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family="Times", size=10)
-        histogramButton["font"] = ft
-        histogramButton["fg"] = "#000000"
-        histogramButton["justify"] = "center"
-        histogramButton["text"] = "Show histograms"
-        histogramButton.place(x=100, y=360, width=150, height=25)
-        histogramButton["command"] = self.showHistograms
+# inImg = image.open(path)
 
-        # Exit GUI
-        exitButton = tk.Button(root)
-        exitButton["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family="Times", size=10)
-        exitButton["font"] = ft
-        exitButton["fg"] = "#000000"
-        exitButton["justify"] = "center"
-        exitButton["text"] = "Close application"
-        exitButton.place(x=260, y=360, width=120, height=25)
-        exitButton["command"] = exit
-        # Labels
-        # Title label
-        titleLabel = tk.Label(root)
-        ft = tkFont.Font(family="Times", size=15, weight="bold")
-        titleLabel["font"] = ft
-        titleLabel["fg"] = "#333333"
-        titleLabel["justify"] = "center"
-        titleLabel["text"] = "Line Detection"
-        titleLabel.place(x=131, y=20, width=538, height=30)
 
-        # Choose an image label
-        chooseImageLabel = tk.Label(root)
-        ft = tkFont.Font(family="Times", size=10)
-        chooseImageLabel["font"] = ft
-        chooseImageLabel["fg"] = "#333333"
-        chooseImageLabel["justify"] = "center"
-        chooseImageLabel["text"] = "Choose an image in jpg/png format"
-        chooseImageLabel.place(x=20, y=60, width=240, height=30)
+def tranformOpenCV():
+    # to do
+    print("opencv")
 
-        # Show active treshold
-        tresholdLabel = tk.Label(root)
-        ft = tkFont.Font(family="Times", size=10)
-        tresholdLabel["font"] = ft
-        tresholdLabel["fg"] = "#333333"
-        tresholdLabel["justify"] = "center"
-        tresholdLabel["text"] = "Hough Treshold = 50"
-        tresholdLabel.place(x=20, y=130, width=231, height=30)
 
-        # Slider current value
-        currentSliderValue = tk.DoubleVar()
+def showHistograms():
+    # to do
+    print("histograms")
 
-        # Internal methods for slider event
-        def slider_changed(event):
-            tresholdLabel.configure(
-                text="Hough Treshold = " + str(int(getCurrentSliderValue()))
-            )
 
-        def getCurrentSliderValue():
-            return currentSliderValue.get()
+# Buttons
+# Do Line detection button
+performTransformButton = tk.Button(root)
+performTransformButton["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+performTransformButton["font"] = ft
+performTransformButton["fg"] = "#000000"
+performTransformButton["justify"] = "center"
+performTransformButton["text"] = "Action!"
+performTransformButton.place(x=20, y=200, width=100, height=25)
+performTransformButton["command"] = doTransform
 
-        #  Slider
-        slider = ttk.Scale(
-            root,
-            from_=50,
-            to=700,
-            orient="horizontal",  # vertical
-            variable=currentSliderValue,
-            command=slider_changed,
-        )
-        slider.place(x=20, y=160, width=228, height=30)
+# Browse for image button
+browseImageButton = tk.Button(root)
+browseImageButton["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+browseImageButton["font"] = ft
+browseImageButton["fg"] = "#000000"
+browseImageButton["justify"] = "center"
+browseImageButton["text"] = "Browse"
+browseImageButton.place(x=20, y=100, width=120, height=25)
+browseImageButton["command"] = browseFiles
 
-        # Frame labels
-        # Initial image
-        initImage = tk.Label(root)
-        ft = tkFont.Font(family="Times", size=10)
-        initImage["font"] = ft
-        initImage["fg"] = "#333333"
-        initImage["justify"] = "center"
-        initImage["text"] = "init1"
-        initImage.place(x=380, y=70, width=222, height=165)
+# Perform OpenCV-based Line detection
+compareOpenCVButton = tk.Button(root)
+compareOpenCVButton["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+compareOpenCVButton["font"] = ft
+compareOpenCVButton["fg"] = "#000000"
+compareOpenCVButton["justify"] = "center"
+compareOpenCVButton["text"] = "OpenCV"
+compareOpenCVButton.place(x=20, y=360, width=70, height=25)
+compareOpenCVButton["command"] = tranformOpenCV
 
-        # Result image
-        resultImage = tk.Label(root)
-        ft = tkFont.Font(family="Times", size=10)
-        resultImage["font"] = ft
-        resultImage["fg"] = "#333333"
-        resultImage["justify"] = "center"
-        resultImage["text"] = "result2"
-        resultImage.place(x=380, y=240, width=222, height=165)
+# Show histograms button
+histogramButton = tk.Button(root)
+histogramButton["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+histogramButton["font"] = ft
+histogramButton["fg"] = "#000000"
+histogramButton["justify"] = "center"
+histogramButton["text"] = "Show histograms"
+histogramButton.place(x=100, y=360, width=150, height=25)
+histogramButton["command"] = showHistograms
 
-    # Events for buttons
-    # to dos
-    def doTransform(self):
-        # to do
-        print("Hough transform")
+# Exit GUI
+exitButton = tk.Button(root)
+exitButton["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+exitButton["font"] = ft
+exitButton["fg"] = "#000000"
+exitButton["justify"] = "center"
+exitButton["text"] = "Close application"
+exitButton.place(x=20, y=395, width=120, height=25)
+exitButton["command"] = exit
+# Labels
+# Title label
+titleLabel = tk.Label(root)
+ft = tkFont.Font(family="Times", size=15, weight="bold")
+titleLabel["font"] = ft
+titleLabel["fg"] = "#333333"
+titleLabel["justify"] = "center"
+titleLabel["text"] = "Line Detection"
+titleLabel.place(x=131, y=20, width=538, height=30)
 
-    # Function for opening the file explorer window
-    def browseFiles(self):
-        global openedfile
-        openedfile = filedialog.askopenfilename(
-            initialdir="/",
-            title="Select an Image",
-            filetypes=(("Image files", "*.png"), ("Image files", "*.jpg")),
-        )
+# Choose an image label
+chooseImageLabel = tk.Label(root)
+ft = tkFont.Font(family="Times", size=10)
+chooseImageLabel["font"] = ft
+chooseImageLabel["fg"] = "#333333"
+chooseImageLabel["justify"] = "center"
+chooseImageLabel["text"] = "Choose an image in jpg/png format"
+chooseImageLabel.place(x=20, y=60, width=240, height=30)
 
-        # Change label contents
-        # label_file_explorer.configure(text="File Opened: "+ openedfile)
-        # Show chosen image
-        path = openedfile
-        print(path)
+# Show active treshold
+tresholdLabel = tk.Label(root)
+ft = tkFont.Font(family="Times", size=10)
+tresholdLabel["font"] = ft
+tresholdLabel["fg"] = "#333333"
+tresholdLabel["justify"] = "center"
+tresholdLabel["text"] = "Hough Treshold = 50"
+tresholdLabel.place(x=20, y=130, width=231, height=30)
 
-    # inImg = image.open(path)
+# Slider current value
+currentSliderValue = tk.DoubleVar()
 
-    def tranformOpenCV(self):
-        # to do
-        print("opencv")
+# Internal methods for slider event
+def slider_changed(event):
+    tresholdLabel.configure(
+        text="Hough Treshold = " + str(int(getCurrentSliderValue()))
+    )
 
-    def showHistograms(self):
-        # to do
-        print("histograms")
+
+def getCurrentSliderValue():
+    return currentSliderValue.get()
+
+
+#  Slider
+slider = ttk.Scale(
+    root,
+    from_=50,
+    to=700,
+    orient="horizontal",  # vertical
+    variable=currentSliderValue,
+    command=slider_changed,
+)
+slider.place(x=20, y=160, width=228, height=30)
+
+# Frame labels
+# Initial image
+initImage = tk.Label(root)
+ft = tkFont.Font(family="Times", size=10)
+initImage["font"] = ft
+initImage["fg"] = "#333333"
+initImage["justify"] = "center"
+initImage["text"] = "init1"
+initImage.place(x=380, y=70, width=400, height=300)
 
 
 # Starting GUI
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
     root.mainloop()

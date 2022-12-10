@@ -38,6 +38,7 @@ root.resizable(width=False, height=False)
 
 # Flag for process done phase
 wasItProcessed = 0
+global in_img
 
 # Events for buttons
 # to dos
@@ -45,7 +46,7 @@ def doTransform():
     # to do
     global wasItProcessed
     wasItProcessed = 1
-    print("Hough transform")
+    print("Hough transform:" + str(wasItProcessed))
 
 
 # Function for opening the file explorer window
@@ -87,6 +88,7 @@ def showHistograms():
     if wasItProcessed == 0:
         # Compute the histogram for the grayscale image
         hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
+        print(hist)
         # Plot the histogram using matplotlib
         plt.imshow(hist, interpolation="nearest")
         plt.show()
@@ -101,6 +103,17 @@ def showHistograms():
         plt.show()
 
 
+def showCannyEdge():
+    global in_img
+    canny_thresholds = [300, 500]
+    edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
+    in_img = edges
+    plt.figure(figsize=(10, 8))
+    plt.imshow(in_img, cmap="gray")
+    plt.title("Input Image")
+    plt.show()
+
+
 # Buttons
 # Do Line detection button
 performTransformButton = tk.Button(root)
@@ -112,6 +125,17 @@ performTransformButton["justify"] = "center"
 performTransformButton["text"] = "Action!"
 performTransformButton.place(x=20, y=200, width=100, height=25)
 performTransformButton["command"] = doTransform
+
+# Show Canny edge detected image button
+showCanny = tk.Button(root)
+showCanny["bg"] = "#f0f0f0"
+ft = tkFont.Font(family="Times", size=10)
+showCanny["font"] = ft
+showCanny["fg"] = "#000000"
+showCanny["justify"] = "center"
+showCanny["text"] = "Show edge image"
+showCanny.place(x=20, y=235, width=130, height=25)
+showCanny["command"] = showCannyEdge
 
 # Browse for image button
 browseImageButton = tk.Button(root)
@@ -131,8 +155,8 @@ ft = tkFont.Font(family="Times", size=10)
 compareOpenCVButton["font"] = ft
 compareOpenCVButton["fg"] = "#000000"
 compareOpenCVButton["justify"] = "center"
-compareOpenCVButton["text"] = "OpenCV"
-compareOpenCVButton.place(x=20, y=360, width=70, height=25)
+compareOpenCVButton["text"] = "Compare results with OpenCV line detection"
+compareOpenCVButton.place(x=20, y=360, width=350, height=25)
 compareOpenCVButton["command"] = tranformOpenCV
 
 # Show histograms button
@@ -143,8 +167,9 @@ histogramButton["font"] = ft
 histogramButton["fg"] = "#000000"
 histogramButton["justify"] = "center"
 histogramButton["text"] = "Show histograms"
-histogramButton.place(x=100, y=360, width=150, height=25)
+histogramButton.place(x=20, y=325, width=150, height=25)
 histogramButton["command"] = showHistograms
+
 
 # Exit GUI
 exitButton = tk.Button(root)

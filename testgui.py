@@ -11,12 +11,13 @@ from tkinter import filedialog
 # Import ttk explicitly, because of faulty behaviour
 from tkinter import ttk
 import sys
+import PIL
 from PIL import Image, ImageTk
-
-# Import the Resampling class from PIL.Image
-from PIL.Image import Resampling
 from matplotlib import pyplot as plt
 
+from src.hough_transformer import HoughTransformer
+
+transformer = HoughTransformer()
 
 # Create the root window
 root = tk.Tk()
@@ -40,13 +41,26 @@ root.resizable(width=False, height=False)
 wasItProcessed = 0
 global in_img
 
-# Events for buttons
-# to dos
 def doTransform():
-    # to do
     global wasItProcessed
+    global in_img
+
+    if wasItProcessed:
+        lines = transformer.extractLinesFromAccumulator(int(getCurrentSliderValue()))
+    else:
+        lines = transformer.hough_transform(in_img, int(getCurrentSliderValue()))
+
+    print("Hough Lines:", lines)
+    output = cv.cvtColor(in_img, cv.COLOR_GRAY2BGR)
+    output = transformer.plotLinesToImage(output, lines)
+    plt.figure(figsize=(15,10))
+    plt.imshow(output)
+    plt.title('Hough Transform')
+    plt.show()
+
     wasItProcessed = 1
     print("Hough transform:" + str(wasItProcessed))
+
 
 
 # Function for opening the file explorer window
@@ -61,7 +75,7 @@ def browseFiles():
     inputImage = Image.open(openedfile)
     # Resize the image to fit the dimensions of the label
     inputImage = inputImage.resize(
-        (initImage.winfo_width(), initImage.winfo_height()), Resampling.LANCZOS
+        (initImage.winfo_width(), initImage.winfo_height())
     )
     # Convert the image to a Tkinter-compatible photo image
     inputPhoto = ImageTk.PhotoImage(inputImage)
@@ -73,11 +87,18 @@ def browseFiles():
     # Adjust the layout of the label to fit the resized image
     # initImage.pack(side="left", fill="both", expand=True)
 
+    canny_thresholds = [460, 500]
+    edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
+    in_img = edges
+
+    global wasItProcessed
+    wasItProcessed = 0
+
 
 # inImg = image.open(path)
 
 
-def tranformOpenCV():
+def transformOpenCV():
     # to do
     print("opencv")
 
@@ -207,7 +228,7 @@ tresholdLabel["font"] = ft
 tresholdLabel["fg"] = "#333333"
 tresholdLabel["justify"] = "center"
 tresholdLabel["text"] = "Hough Treshold = 50"
-tresholdLabel.place(x=20, y=130, width=231, height=30)
+tresholdLabel.place(x=25, y=130, width=231, height=30)
 
 # Slider current value
 currentSliderValue = tk.DoubleVar()
@@ -218,7 +239,6 @@ def slider_changed(event):
         text="Hough Treshold = " + str(int(getCurrentSliderValue()))
     )
 
-
 def getCurrentSliderValue():
     return currentSliderValue.get()
 
@@ -228,6 +248,7 @@ slider = ttk.Scale(
     root,
     from_=50,
     to=700,
+    value=300,
     orient="horizontal",  # vertical
     variable=currentSliderValue,
     command=slider_changed,

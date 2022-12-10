@@ -1,7 +1,7 @@
 # GUI for Line detection by Hough Transform
 # DIP semester project
 # Branduse, Malin-Dorin and Jimon, Lucian-Daniel
-
+import cv2 as cv
 import tkinter as tk
 import tkinter.font as tkFont
 
@@ -15,6 +15,7 @@ from PIL import Image, ImageTk
 
 # Import the Resampling class from PIL.Image
 from PIL.Image import Resampling
+from matplotlib import pyplot as plt
 
 
 # Create the root window
@@ -35,10 +36,15 @@ alignstr = "%dx%d+%d+%d" % (
 root.geometry(alignstr)
 root.resizable(width=False, height=False)
 
+# Flag for process done phase
+wasItProcessed = 0
+
 # Events for buttons
 # to dos
 def doTransform():
     # to do
+    global wasItProcessed
+    wasItProcessed = 1
     print("Hough transform")
 
 
@@ -61,6 +67,8 @@ def browseFiles():
     # Update the label's image attribute with the new photo image
     initImage.config(image=inputPhoto)
     initImage.image = inputPhoto
+    global in_img
+    in_img = cv.imread(openedfile, cv.IMREAD_GRAYSCALE)
     # Adjust the layout of the label to fit the resized image
     # initImage.pack(side="left", fill="both", expand=True)
 
@@ -74,8 +82,23 @@ def tranformOpenCV():
 
 
 def showHistograms():
-    # to do
-    print("histograms")
+    global wasItProcessed
+    global in_img
+    if wasItProcessed == 0:
+        # Compute the histogram for the grayscale image
+        hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
+        # Plot the histogram using matplotlib
+        plt.imshow(hist, interpolation="nearest")
+        plt.show()
+    else:
+        # Compute the histogram for the input image
+        hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
+        # Compute the histogram for the canny-edge image
+        hist2 = cv.calcHist([in_img], [0], None, [256], [0, 256])
+        # Plot the histogram using matplotlib
+        plt.imshow(hist, interpolation="nearest")
+        plt.imshow(hist2, interpolation="nearest")
+        plt.show()
 
 
 # Buttons

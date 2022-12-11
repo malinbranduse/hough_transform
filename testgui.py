@@ -27,7 +27,7 @@ root = tk.Tk()
 root.title("Line detection by Hough Transform")
 # Setting window size and characteristics
 width = 800
-height = 600
+height = 475
 screenwidth = root.winfo_screenwidth()
 screenheight = root.winfo_screenheight()
 alignstr = "%dx%d+%d+%d" % (
@@ -36,6 +36,9 @@ alignstr = "%dx%d+%d+%d" % (
     (screenwidth - width) / 2,
     (screenheight - height) / 2,
 )
+# Set the window's icon to the specified image file
+root.wm_iconbitmap("src\\logo.bmp")
+
 root.geometry(alignstr)
 root.resizable(width=False, height=False)
 
@@ -55,6 +58,7 @@ def doTransform():
     global edges
     global wasItChosen
 
+    # Early bail if not the case
     if wasItChosen == 0:
         initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
         return 0
@@ -102,7 +106,7 @@ def browseFiles():
     # Adjust the layout of the label to fit the resized image
     # initImage.pack(side="left", fill="both", expand=True)
     global edges
-    canny_thresholds = [460, 500]
+    canny_thresholds = [250, 300]
     edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
 
     # Setting flags to corresponding values
@@ -118,8 +122,10 @@ def browseFiles():
 def transformOpenCV():
     global wasItProcessed
     global edges
-    global wasItChosen
     global in_img
+    global wasItChosen
+
+    # Early bail if not the case
     if wasItChosen == 0:
         initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
         return 0
@@ -143,9 +149,11 @@ def transformOpenCV():
 
 def showHistograms():
     global wasItProcessed
-    global wasItChosen
     global in_img
     global edges
+    global wasItChosen
+
+    # Early bail if not the case
     if wasItChosen == 0:
         initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
         return 0
@@ -165,8 +173,14 @@ def showHistograms():
 
 def showCannyEdge():
     global in_img
-    canny_thresholds = [300, 500]
-    edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
+    global wasItChosen
+    global edges
+
+    # Early bail if not the case
+    if wasItChosen == 0:
+        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
+        return 0
+
     plt.figure(figsize=(10, 8))
     plt.imshow(edges, cmap="gray")
     plt.title("Input Image")

@@ -102,7 +102,7 @@ class HoughTransformer:
         plt.imshow(accum_resize)
         plt.show()
 
-    def plotLinesToImage(self, output_image, lines, line_width=2, color=(0, 0, 255)):
+    def plotLinesToImage(self, output_image, lines, line_width=2, color=(255, 0, 0)):
         # reverse hough transform - from rho and theta, compute x and y
         # scalar is used to properly set the length of the line
         scalar = 1e5
@@ -119,7 +119,7 @@ class HoughTransformer:
         return output_image
 
     def plotLinesToImageOpenCV(
-        self, output_image, lines, line_width=2, color=(0, 0, 255)
+        self, output_image, lines, line_width=5, color=(255, 0, 0)
     ):
         # reverse hough transform for OpenCV Lines - from rho and theta, compute x and y
         # scalar is used to properly set the length of the line

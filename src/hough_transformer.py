@@ -5,15 +5,15 @@ import numpy as np
 
 
 class HoughTransformer:
-    def hough_transform(self, img, threshold, rho_step=1, theta_step=math.pi/180):
+    def hough_transform(self, img, threshold, rho_step=1, theta_step=math.pi / 180):
         self.img = img
         self.threshold = threshold
         self.rho_step = rho_step
         self.theta_step = theta_step
 
         # theta is calculated from -90 to 90 degrees
-        min_theta = -np.pi/2
-        max_theta = np.pi/2
+        min_theta = -np.pi / 2
+        max_theta = np.pi / 2
 
         self.min_theta = min_theta
         self.max_theta = max_theta
@@ -58,7 +58,7 @@ class HoughTransformer:
 
         return self.extractLinesFromAccumulator(threshold)
 
-    def hough_transform_cv(self, img, threshold, rho_step=1, theta_step=math.pi/180):
+    def hough_transform_cv(self, img, threshold, rho_step=1, theta_step=math.pi / 180):
         lines = cv.HoughLines(img, rho_step, theta_step, threshold)
         lines = lines if lines is not None else np.array([])
         return lines
@@ -75,7 +75,8 @@ class HoughTransformer:
             for n in range(1, self.num_angle):
                 current = accum[r, n]
                 neighbors = np.array(
-                    [accum[r, n-1], accum[r, n+1], accum[r-1, n], accum[r+1, n]])
+                    [accum[r, n - 1], accum[r, n + 1], accum[r - 1, n], accum[r + 1, n]]
+                )
                 if current > threshold and (current > neighbors).all():
                     maximums.append((r, n))
 
@@ -101,8 +102,8 @@ class HoughTransformer:
         plt.imshow(accum_resize)
         plt.show()
 
-    def plotLinesToImage(self, output_image, lines, line_width = 2, color = (0,0,255)):
-        # reverse hough transform - from rho and theta, compute x and y 
+    def plotLinesToImage(self, output_image, lines, line_width=2, color=(0, 0, 255)):
+        # reverse hough transform - from rho and theta, compute x and y
         # scalar is used to properly set the length of the line
         scalar = 1e5
         for i in range(len(lines)):
@@ -111,8 +112,26 @@ class HoughTransformer:
             b = math.sin(theta)
             x0 = a * rho
             y0 = b * rho
-            pt1 = (int(x0 + scalar*(-b)), int(y0 + scalar*(a)))
-            pt2 = (int(x0 - scalar*(-b)), int(y0 - scalar*(a)))
+            pt1 = (int(x0 + scalar * (-b)), int(y0 + scalar * (a)))
+            pt2 = (int(x0 - scalar * (-b)), int(y0 - scalar * (a)))
             cv.line(output_image, pt1, pt2, color, line_width, cv.LINE_AA)
+
+        return output_image
+
+    def plotLinesToImageOpenCV(
+        self, output_image, lines, line_width=2, color=(0, 0, 255)
+    ):
+        # reverse hough transform for OpenCV Lines - from rho and theta, compute x and y
+        # scalar is used to properly set the length of the line
+        scalar = 5e3
+        for i in range(len(lines)):
+            rho, theta = lines[i]
+            a = math.cos(theta)
+            b = math.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            pt1 = (int(x0 + scalar * (-b)), int(y0 + scalar * (a)))
+            pt2 = (int(x0 - scalar * (-b)), int(y0 - scalar * (a)))
+            cv.line(output_image, pt1, pt2, (0, 0, 255), 2, cv.LINE_AA)
 
         return output_image

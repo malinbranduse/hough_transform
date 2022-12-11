@@ -10,10 +10,12 @@ from tkinter import filedialog
 
 # Import ttk explicitly, because of faulty behaviour
 from tkinter import ttk
+from tkinter import Toplevel
 import sys
 import PIL
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from src.hough_transformer import HoughTransformer
 
@@ -39,28 +41,43 @@ root.resizable(width=False, height=False)
 
 # Flag for process done phase
 wasItProcessed = 0
+# Flag for browsing done phase
+wasItChosen = 0
+# Input image variable
 global in_img
+# Edge detected image
+global edges
 
+# Hough transform function called
 def doTransform():
     global wasItProcessed
     global in_img
+    global edges
+    global wasItChosen
+
+    if wasItChosen == 0:
+        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
+        return 0
 
     if wasItProcessed:
         lines = transformer.extractLinesFromAccumulator(int(getCurrentSliderValue()))
     else:
-        lines = transformer.hough_transform(in_img, int(getCurrentSliderValue()))
+        lines = transformer.hough_transform(edges, int(getCurrentSliderValue()))
 
     print("Hough Lines:", lines)
-    output = cv.cvtColor(in_img, cv.COLOR_GRAY2BGR)
+    output = cv.cvtColor(in_img, cv.COLOR_GRAY2RGB)
     output = transformer.plotLinesToImage(output, lines)
-    plt.figure(figsize=(15,10))
-    plt.imshow(output)
-    plt.title('Hough Transform')
-    plt.show()
+    # Open the image file using PIL
+    inputImage = Image.fromarray(output)
+    inputImage = inputImage.resize((initImage.winfo_width(), initImage.winfo_height()))
+    # Convert the image to a Tkinter-compatible photo image
+    inputPhoto = ImageTk.PhotoImage(inputImage)
+    # Update the label's image attribute with the new photo image
+    initImage.config(image=inputPhoto)
+    initImage.image = inputPhoto
 
     wasItProcessed = 1
     print("Hough transform:" + str(wasItProcessed))
-
 
 
 # Function for opening the file explorer window
@@ -74,9 +91,7 @@ def browseFiles():
     # Open the image file using PIL
     inputImage = Image.open(openedfile)
     # Resize the image to fit the dimensions of the label
-    inputImage = inputImage.resize(
-        (initImage.winfo_width(), initImage.winfo_height())
-    )
+    inputImage = inputImage.resize((initImage.winfo_width(), initImage.winfo_height()))
     # Convert the image to a Tkinter-compatible photo image
     inputPhoto = ImageTk.PhotoImage(inputImage)
     # Update the label's image attribute with the new photo image
@@ -86,11 +101,13 @@ def browseFiles():
     in_img = cv.imread(openedfile, cv.IMREAD_GRAYSCALE)
     # Adjust the layout of the label to fit the resized image
     # initImage.pack(side="left", fill="both", expand=True)
-
+    global edges
     canny_thresholds = [460, 500]
     edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
-    in_img = edges
 
+    # Setting flags to corresponding values
+    global wasItChosen
+    wasItChosen = 1
     global wasItProcessed
     wasItProcessed = 0
 
@@ -99,38 +116,59 @@ def browseFiles():
 
 
 def transformOpenCV():
-    # to do
-    print("opencv")
+    global wasItProcessed
+    global edges
+    global wasItChosen
+    global in_img
+    if wasItChosen == 0:
+        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
+        return 0
+
+    if wasItProcessed:
+        lines = transformer.extractLinesFromAccumulator(int(getCurrentSliderValue()))
+    else:
+        lines = transformer.hough_transform_cv(edges, int(getCurrentSliderValue()))
+
+    print("Hough Lines with OpenCV:", lines)
+    output = cv.cvtColor(in_img, cv.COLOR_GRAY2BGR)
+    output = transformer.plotLinesToImageOpenCV(output, lines)
+    plt.figure(figsize=(15, 10))
+    plt.imshow(output)
+    plt.title("Hough Transform with OpenCV")
+    plt.show()
+
+    wasItProcessed = 1
+    print("Hough transform with OpencV:" + str(wasItProcessed))
 
 
 def showHistograms():
     global wasItProcessed
+    global wasItChosen
     global in_img
-    if wasItProcessed == 0:
-        # Compute the histogram for the grayscale image
-        hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
-        print(hist)
-        # Plot the histogram using matplotlib
-        plt.imshow(hist, interpolation="nearest")
-        plt.show()
-    else:
-        # Compute the histogram for the input image
-        hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
-        # Compute the histogram for the canny-edge image
-        hist2 = cv.calcHist([in_img], [0], None, [256], [0, 256])
-        # Plot the histogram using matplotlib
-        plt.imshow(hist, interpolation="nearest")
-        plt.imshow(hist2, interpolation="nearest")
-        plt.show()
+    global edges
+    if wasItChosen == 0:
+        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
+        return 0
+
+    # Compute the histogram for the grayscale image
+    hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
+    print(hist)
+
+    plt.figure()
+    plt.hist(in_img.ravel(), 256, [0, 255])
+    plt.suptitle("The histogram of the input grayscale image")
+    if wasItProcessed == 1:
+        plt.hist(edges.ravel(), 256, [0, 255])
+        plt.suptitle("The histogram of the Canny edge detected image")
+    plt.show()
 
 
 def showCannyEdge():
     global in_img
     canny_thresholds = [300, 500]
     edges = cv.Canny(in_img, canny_thresholds[0], canny_thresholds[1])
-    in_img = edges
     plt.figure(figsize=(10, 8))
-    plt.imshow(in_img, cmap="gray")
+    plt.imshow(edges, cmap="gray")
     plt.title("Input Image")
     plt.show()
 
@@ -178,7 +216,7 @@ compareOpenCVButton["fg"] = "#000000"
 compareOpenCVButton["justify"] = "center"
 compareOpenCVButton["text"] = "Compare results with OpenCV line detection"
 compareOpenCVButton.place(x=20, y=360, width=350, height=25)
-compareOpenCVButton["command"] = tranformOpenCV
+compareOpenCVButton["command"] = transformOpenCV
 
 # Show histograms button
 histogramButton = tk.Button(root)
@@ -239,6 +277,8 @@ def slider_changed(event):
         text="Hough Treshold = " + str(int(getCurrentSliderValue()))
     )
 
+
+# Function to get the slider's current value
 def getCurrentSliderValue():
     return currentSliderValue.get()
 
@@ -247,7 +287,7 @@ def getCurrentSliderValue():
 slider = ttk.Scale(
     root,
     from_=50,
-    to=700,
+    to=400,
     value=300,
     orient="horizontal",  # vertical
     variable=currentSliderValue,
@@ -258,11 +298,7 @@ slider.place(x=20, y=160, width=228, height=30)
 # Frame labels
 # Initial image
 initImage = tk.Label(root)
-ft = tkFont.Font(family="Times", size=10)
-initImage["font"] = ft
-initImage["fg"] = "#333333"
-initImage["justify"] = "center"
-initImage["text"] = "init1"
+initImage["borderwidth"] = 2
 initImage.place(x=380, y=70, width=400, height=300)
 
 

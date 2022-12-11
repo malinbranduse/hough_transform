@@ -51,7 +51,7 @@ class HoughTransformer:
                     r = round(j * math.cos(angle) + i * math.sin(angle))
                     # Move to center
                     r += int(rho_offset)
-                    # increment accumulator, r+1, n+1 because of the accumulator size + 2
+                    # increment accumulator
                     accum[r, n] += 1
 
         self.accumulator = accum
@@ -90,7 +90,7 @@ class HoughTransformer:
             r, th = maximums[i]
             rho = (r - self.rho_offset) * self.rho_step
             angle = self.min_theta + th * self.theta_step
-            lines.append((rho, angle))
+            lines.append([(rho, angle)])
 
         return lines
 
@@ -107,7 +107,7 @@ class HoughTransformer:
         # scalar is used to properly set the length of the line
         scalar = 1e5
         for i in range(len(lines)):
-            rho, theta = lines[i]
+            rho, theta = lines[i][0]
             a = math.cos(theta)
             b = math.sin(theta)
             x0 = a * rho
@@ -115,23 +115,5 @@ class HoughTransformer:
             pt1 = (int(x0 + scalar * (-b)), int(y0 + scalar * (a)))
             pt2 = (int(x0 - scalar * (-b)), int(y0 - scalar * (a)))
             cv.line(output_image, pt1, pt2, color, line_width, cv.LINE_AA)
-
-        return output_image
-
-    def plotLinesToImageOpenCV(
-        self, output_image, lines, line_width=5, color=(255, 0, 0)
-    ):
-        # reverse hough transform for OpenCV Lines - from rho and theta, compute x and y
-        # scalar is used to properly set the length of the line
-        scalar = 5e3
-        for i in range(len(lines)):
-            rho, theta = lines[i]
-            a = math.cos(theta)
-            b = math.sin(theta)
-            x0 = a * rho
-            y0 = b * rho
-            pt1 = (int(x0 + scalar * (-b)), int(y0 + scalar * (a)))
-            pt2 = (int(x0 - scalar * (-b)), int(y0 - scalar * (a)))
-            cv.line(output_image, pt1, pt2, (0, 0, 255), 2, cv.LINE_AA)
 
         return output_image

@@ -37,8 +37,9 @@ alignstr = "%dx%d+%d+%d" % (
     (screenheight - height) / 2,
 )
 # Set the window's icon to the specified image file
-root.wm_iconbitmap("src\\logo.bmp")
-
+photo = ImageTk.PhotoImage(file="src\\logo.bmp")
+root.iconphoto(False, photo)
+# Set geometry
 root.geometry(alignstr)
 root.resizable(width=False, height=False)
 

@@ -94,7 +94,7 @@ def browseFiles():
     openedfile = filedialog.askopenfilename(
         initialdir="/",
         title="Select an Image",
-        filetypes=(("Image files", "*.png"), ("Image files", "*.jpg")),
+        filetypes=(("Image files", "*.png"), ("Image files", "*.jpg"), ("Image files", "*.jpeg")),
     )
     # Open the image file using PIL
     inputImage = Image.open(openedfile)
@@ -154,28 +154,13 @@ def transformOpenCV():
     print("Hough transform with OpencV")
 
 
-def showHistograms():
+def showAccumulator():
     global wasItProcessed
-    global in_img
-    global edges
-    global wasItChosen
 
-    # Early bail if not the case
-    if wasItChosen == 0:
-        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
-        return 0
+    if not wasItProcessed:
+        return
 
-    # Compute the histogram for the grayscale image
-    hist = cv.calcHist([in_img], [0], None, [256], [0, 256])
-    print(hist)
-
-    plt.figure()
-    plt.hist(in_img.ravel(), 256, [0, 255])
-    plt.suptitle("The histogram of the input grayscale image")
-    if edges is not None:
-        plt.hist(edges.ravel(), 256, [0, 255])
-        plt.suptitle("The histogram of the Canny edge detected image")
-    plt.show()
+    transformer.plotAccumulator()
 
 
 def showCannyEdge():
@@ -191,10 +176,7 @@ def showCannyEdge():
     if edges is None:
         cannyTransform()
 
-    plt.figure(figsize=(10, 8))
-    plt.imshow(edges, cmap="gray")
-    plt.title("Input Image")
-    plt.show()
+    displayImage(Image.fromarray(edges))
 
 
 # Buttons
@@ -243,16 +225,16 @@ showCanny = tk.Button(
 )
 showCanny.place(x=20, y=320)
 
-# Show histograms button
-histogramButton = tk.Button(
+# Show accumulator button
+accumulatorButton = tk.Button(
     root,
     font=app_font,
-    text="Show Histograms",
-    command=showHistograms,
+    text="Show Accumulator",
+    command=showAccumulator,
     padx=8,
     pady=4,
 )
-histogramButton.place(x=20, y=360)
+accumulatorButton.place(x=20, y=360)
 
 # Exit GUI
 exitButton = tk.Button(

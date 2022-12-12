@@ -2,8 +2,10 @@
 # DIP semester project
 # Branduse, Malin-Dorin and Jimon, Lucian-Daniel
 import tkinter as tk
+
 # Import filedialog explicitly, because of faulty behaviour
 from tkinter import filedialog
+
 # Import ttk explicitly, because of faulty behaviour
 from tkinter import ttk
 
@@ -38,7 +40,7 @@ root.iconphoto(False, photo)
 root.geometry(alignstr)
 root.resizable(width=False, height=False)
 
-app_font = ("Arial", 14)
+app_font = ("Arial", 10)
 
 canny_threshold_delta = 50
 # Flag for process done phase
@@ -79,6 +81,7 @@ def transform():
     wasItProcessed = 1
     print("Hough transform:" + str(wasItProcessed))
 
+
 def displayImage(inputImage):
     global initImage
     inputImage.thumbnail((initImage.winfo_width(), initImage.winfo_height()))
@@ -88,13 +91,18 @@ def displayImage(inputImage):
     initImage.config(image=inputPhoto)
     initImage.image = inputPhoto
 
+
 # Function for opening the file explorer window
 def browseFiles():
     global openedfile
     openedfile = filedialog.askopenfilename(
         initialdir="/",
         title="Select an Image",
-        filetypes=(("Image files", "*.png"), ("Image files", "*.jpg"), ("Image files", "*.jpeg")),
+        filetypes=(
+            ("Image files", "*.png"),
+            ("Image files", "*.jpg"),
+            ("Image files", "*.jpeg"),
+        ),
     )
     # Open the image file using PIL
     inputImage = Image.open(openedfile)
@@ -124,9 +132,11 @@ def cannyTransform():
         initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
         return 0
 
-    edges = cv.Canny(in_img,
-                     int(getCannyThreshold() - canny_threshold_delta/2),
-                     int(getCannyThreshold() + canny_threshold_delta/2))
+    edges = cv.Canny(
+        in_img,
+        int(getCannyThreshold() - canny_threshold_delta / 2),
+        int(getCannyThreshold() + canny_threshold_delta / 2),
+    )
 
 
 def transformOpenCV():
@@ -156,6 +166,11 @@ def transformOpenCV():
 
 def showAccumulator():
     global wasItProcessed
+    global wasItChosen
+    # Early bail if not the case
+    if wasItChosen == 0:
+        initImage.config(text="You need to choose an image", font=("Arial", 15, "bold"))
+        return 0
 
     if not wasItProcessed:
         return
@@ -251,7 +266,7 @@ exitButton.place(x=20, y=420)
 # Title label
 titleLabel = tk.Label(
     root,
-    font=("Arial", 24, "bold"),
+    font=("Arial", 20, "bold"),
     text="Hough Transform",
 )
 titleLabel.place(x=20, y=20)
@@ -279,6 +294,7 @@ def houghThresholdChanged(event):
         text="Hough Threshold = " + str(int(getHoughThreshold()))
     )
 
+
 def cannyThresholdChanged(event):
     cannyThresholdLabel.configure(
         text="Canny Threshold = " + str(int(getCannyThreshold()))
@@ -297,6 +313,7 @@ houghThresholdValue = tk.DoubleVar(value=100)
 def getHoughThreshold():
     return houghThresholdValue.get()
 
+
 def getCannyThreshold():
     return cannyThresholdValue.get()
 
@@ -313,10 +330,7 @@ houghThresholdSlider = ttk.Scale(
 houghThresholdSlider.place(x=20, y=160, width=228, height=30)
 
 cannyThresholdLabel = tk.Label(
-    root,
-    font=app_font,
-    fg="#333333",
-    text="Canny Threshold"
+    root, font=app_font, fg="#333333", text="Canny Threshold"
 )
 cannyThresholdLabel.place(x=20, y=190)
 
@@ -335,10 +349,7 @@ cannyThresholdSlider.place(x=20, y=210, width=228, height=30)
 
 # Frame labels
 # Initial image
-initImage = tk.Label(
-    root,
-    borderwidth=2
-)
+initImage = tk.Label(root, borderwidth=2)
 initImage.place(x=280, y=20, width=500, height=440)
 
 # Display initial slider values in labels

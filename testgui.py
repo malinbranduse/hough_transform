@@ -2,6 +2,7 @@
 # DIP semester project
 # Branduse, Malin-Dorin and Jimon, Lucian-Daniel
 import tkinter as tk
+import sys
 
 # Import filedialog explicitly, because of faulty behaviour
 from tkinter import filedialog
@@ -162,6 +163,10 @@ def transformOpenCV():
     displayImage(Image.fromarray(output))
 
     print("Hough transform with OpencV")
+
+
+def exit():
+    sys.exit()
 
 
 def showAccumulator():
